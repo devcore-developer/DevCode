@@ -220,3 +220,14 @@ function showToast(message) {
         setTimeout(() => toast.remove(), 350);
     }, 3000);
 }
+// ===== Make Project Cards Clickable =====
+document.querySelectorAll('.project-card').forEach(card => {
+    const liveUrl = card.getAttribute('data-live');
+    if (liveUrl) {
+        card.addEventListener('click', (e) => {
+            // لو الضغطة جت من لينك جوا الكارت (زي GitHub) — متعملش حاجة
+            if (e.target.closest('a')) return;
+            window.open(liveUrl, '_blank');
+        });
+    }
+});
