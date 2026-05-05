@@ -24,8 +24,6 @@
         .modal-bg{backdrop-filter:blur(8px);background:rgba(0,0,0,.7)}
         .toast{animation:toastIn .3s ease forwards}@keyframes toastIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
         .toast-out{animation:toastOut .25s ease forwards}@keyframes toastOut{to{opacity:0;transform:translateX(100%)}}
-        .skeleton{background:linear-gradient(90deg,rgba(255,255,255,.02) 25%,rgba(255,255,255,.05) 50%,rgba(255,255,255,.02) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
-        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
         input:focus,textarea:focus,select:focus{outline:none;border-color:rgba(79,140,255,.4)!important}
         .toggle-sw{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.08);position:relative;cursor:pointer;transition:background .3s}
         .toggle-sw.on{background:#4F8CFF}.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .3s}
@@ -168,13 +166,10 @@
                 </div>
                 <form id="projectForm" class="space-y-4">
                     <input type="hidden" id="projId">
-
-                    <!-- IMAGE UPLOAD ZONE -->
                     <div>
                         <label class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-600 mb-1.5 block">Project Image *</label>
                         <div id="uploadZone" class="upload-zone rounded-xl p-1 relative" onclick="document.getElementById('fileInput').click()">
                             <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(this.files)">
-                            <!-- Empty state -->
                             <div id="uploadEmpty" class="flex flex-col items-center justify-center py-8 px-4 text-center">
                                 <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
                                     <iconify-icon icon="lucide:image-plus" width="22" class="text-gray-600"></iconify-icon>
@@ -182,7 +177,6 @@
                                 <p class="text-xs text-gray-500 mb-1">Click or drag image here</p>
                                 <p class="text-[10px] font-mono text-gray-700">PNG, JPG, WEBP — Max 5MB</p>
                             </div>
-                            <!-- Preview state -->
                             <div id="uploadPreview" style="display:none" class="relative">
                                 <img id="previewImg" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg">
                                 <div class="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
@@ -192,7 +186,6 @@
                                     <iconify-icon icon="lucide:x" width="14"></iconify-icon>
                                 </button>
                             </div>
-                            <!-- Progress state -->
                             <div id="uploadProgress" style="display:none" class="py-6 px-4">
                                 <div class="flex items-center justify-center mb-3">
                                     <svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F8CFF" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
@@ -201,10 +194,8 @@
                                 <div class="upload-progress"><div id="uploadBar" class="upload-progress-bar" style="width:0%"></div></div>
                             </div>
                         </div>
-                        <!-- Hidden field to store the final URL -->
                         <input type="hidden" id="projImage" value="">
                     </div>
-
                     <div><label class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-600 mb-1.5 block">Title *</label><input id="projTitle" type="text" required placeholder="Project Name" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-gray-700 transition-colors"></div>
                     <div><label class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-600 mb-1.5 block">Description *</label><textarea id="projDesc" rows="3" required placeholder="Brief description..." class="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-gray-700 transition-colors resize-none"></textarea></div>
                     <div class="grid grid-cols-2 gap-4">
@@ -248,37 +239,32 @@
 
     <div id="toastContainer" class="fixed top-5 right-5 z-[80] space-y-2"></div>
 
-    <!-- ===== FIREBASE SDKs ===== -->
+    <!-- ===== FIREBASE SDKs (Auth + Firestore only) ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script>window._fbCheck = window._fbCheck || []; window._fbCheck.push('app-sdk: ' + (typeof firebase !== 'undefined' ? 'OK' : 'FAIL'));</script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script>window._fbCheck.push('auth-sdk: ' + (typeof firebase.auth !== 'undefined' ? 'OK' : 'FAIL'));</script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>window._fbCheck.push('fs-sdk: ' + (typeof firebase.firestore !== 'undefined' ? 'OK' : 'FAIL'));</script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-    <script>window._fbCheck.push('storage-sdk: ' + (typeof firebase.storage !== 'undefined' ? 'OK' : 'FAIL'));</script>
     <script src="firebase-config.js"></script>
     <script>
         window._fbCheck.push('config: ' + (typeof firebaseConfig !== 'undefined' ? 'OK' : 'FAIL'));
         window._fbCheck.push('init: ' + (typeof db !== 'undefined' ? 'OK' : 'FAIL'));
-        // Init storage reference
-        window._storageRef = (typeof firebase !== 'undefined' && typeof firebase.storage !== 'undefined') ? firebase.storage() : null;
-        window._fbCheck.push('storage: ' + (window._storageRef ? 'OK' : 'FAIL'));
+        window._fbCheck.push('upload: ImgBB ready');
     </script>
 
     <script>
-    // ===== SHOW LOADING STEPS =====
+    // ===== LOADING STEPS =====
     var stepsEl = document.getElementById('loadingSteps');
     if (stepsEl && window._fbCheck) {
         stepsEl.innerHTML = window._fbCheck.map(function(s) {
-            var ok = s.indexOf('OK') > -1;
+            var ok = s.indexOf('OK') > -1 || s.indexOf('ready') > -1;
             return '<div class="flex items-center gap-2">' +
                 '<span class="w-1.5 h-1.5 rounded-full ' + (ok ? 'bg-emerald-400' : 'bg-red-400') + '"></span>' +
                 '<span class="' + (ok ? 'text-gray-500' : 'text-red-400') + '">' + s + '</span></div>';
         }).join('');
     }
 
-    // ===== SKIP BUTTON =====
     setTimeout(function() { var b = document.getElementById('skipBtn'); if (b) b.style.display = ''; }, 6000);
     setTimeout(function() { if (document.getElementById('loadingScreen').style.display !== 'none') skipToLogin(); }, 12000);
 
@@ -304,8 +290,6 @@
         if (typeof firebase === 'undefined') throw new Error('Firebase SDK not loaded');
         if (typeof firebaseConfig === 'undefined' || !firebaseConfig.apiKey) throw new Error('firebase-config.js missing or empty');
         if (typeof db === 'undefined') throw new Error('Firestore init failed');
-        if (!window._storageRef) throw new Error('Storage init failed — check Firebase Storage rules');
-
         window._firebaseOK = true;
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('loginScreen').style.display = '';
@@ -323,14 +307,12 @@
         document.getElementById('projSearch').addEventListener('input', renderProjects);
         document.getElementById('projectForm').addEventListener('submit', function(e) { e.preventDefault(); saveProject(this); });
 
-        // Drag & drop for upload zone
         var zone = document.getElementById('uploadZone');
         zone.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); zone.classList.add('drag-over'); });
         zone.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); zone.classList.remove('drag-over'); });
         zone.addEventListener('drop', function(e) {
             e.preventDefault(); e.stopPropagation(); zone.classList.remove('drag-over');
-            var files = e.dataTransfer.files;
-            if (files.length > 0) handleFileSelect(files);
+            if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files);
         });
 
         auth.onAuthStateChanged(function(user) {
@@ -347,87 +329,98 @@
         });
     }
 
-    // ===== IMAGE UPLOAD =====
+    // ===== IMAGE UPLOAD — ImgBB =====
+    var IMGBB_KEY = '49b70f35593a00907eab14b3bb7f0962';
+
     function handleFileSelect(files) {
         if (!files || files.length === 0) return;
         var file = files[0];
 
-        // Validate type
         if (!file.type.match(/^image\/(png|jpeg|jpg|webp|gif)$/)) {
-            toast('Only PNG, JPG, WEBP images allowed', 'error');
-            return;
+            toast('Only PNG, JPG, WEBP allowed', 'error'); return;
         }
-        // Validate size (5MB)
         if (file.size > 5 * 1024 * 1024) {
-            toast('Image must be under 5MB', 'error');
-            return;
-        }
-        if (!window._firebaseOK || !window._storageRef) {
-            toast('Firebase Storage not connected', 'error');
-            return;
+            toast('Max 5MB', 'error'); return;
         }
         if (isUploading) {
-            toast('Upload in progress...', 'info');
-            return;
+            toast('Upload in progress...', 'info'); return;
         }
 
         isUploading = true;
         uploadedImageUrl = '';
 
-        // Show progress UI
         document.getElementById('uploadEmpty').style.display = 'none';
         document.getElementById('uploadPreview').style.display = 'none';
         document.getElementById('uploadProgress').style.display = '';
         document.getElementById('uploadBar').style.width = '0%';
-        document.getElementById('uploadPercent').textContent = 'Uploading... 0%';
+        document.getElementById('uploadPercent').textContent = 'Preparing...';
         document.getElementById('uploadZone').classList.remove('has-image');
 
-        // Create a unique filename
-        var timestamp = Date.now();
-        var safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        var path = 'projects/' + timestamp + '_' + safeName;
-        var ref = window._storageRef.ref(path);
-        var task = ref.put(file);
+        // Read file as base64 for ImgBB
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var base64 = e.target.result.split(',')[1];
 
-        task.on('state_changed',
-            function(snapshot) {
-                var progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                document.getElementById('uploadBar').style.width = progress + '%';
-                document.getElementById('uploadPercent').textContent = 'Uploading... ' + progress + '%';
-            },
-            function(error) {
-                isUploading = false;
-                console.error('Upload error:', error);
-                document.getElementById('uploadProgress').style.display = 'none';
-                document.getElementById('uploadEmpty').style.display = '';
-                var msgs = {
-                    'storage/unauthorized': 'Access denied — check Storage rules',
-                    'storage/canceled': 'Upload canceled',
-                    'storage/quota-exceeded': 'Storage quota exceeded'
-                };
-                toast(msgs[error.code] || 'Upload failed: ' + error.code, 'error');
-            },
-            function() {
-                // Upload complete — get download URL
-                task.snapshot.ref.getDownloadURL().then(function(url) {
+            // Fake progress
+            var fakeProg = 0;
+            var progTimer = setInterval(function() {
+                fakeProg += Math.random() * 12;
+                if (fakeProg > 85) fakeProg = 85;
+                document.getElementById('uploadBar').style.width = fakeProg + '%';
+                document.getElementById('uploadPercent').textContent = 'Uploading... ' + Math.round(fakeProg) + '%';
+            }, 250);
+
+            var formData = new FormData();
+            formData.append('key', IMGBB_KEY);
+            formData.append('image', base64);
+
+            fetch('https://api.imgbb.com/1/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                clearInterval(progTimer);
+
+                if (data.success) {
+                    var url = data.data.url;
                     uploadedImageUrl = url;
                     document.getElementById('projImage').value = url;
                     isUploading = false;
 
-                    // Show preview
-                    document.getElementById('uploadProgress').style.display = 'none';
-                    document.getElementById('previewImg').src = url;
-                    document.getElementById('uploadPreview').style.display = '';
-                    document.getElementById('uploadZone').classList.add('has-image');
-                    toast('Image uploaded!', 'success');
-                }).catch(function(err) {
-                    isUploading = false;
-                    document.getElementById('uploadProgress').style.display = 'none';
-                    document.getElementById('uploadEmpty').style.display = '';
-                    toast('Failed to get image URL', 'error');
-                });
-            }
-        );
+                    document.getElementById('uploadBar').style.width = '100%';
+                    document.getElementById('uploadPercent').textContent = '100%';
+
+                    setTimeout(function() {
+                        document.getElementById('uploadProgress').style.display = 'none';
+                        document.getElementById('previewImg').src = url;
+                        document.getElementById('uploadPreview').style.display = '';
+                        document.getElementById('uploadZone').classList.add('has-image');
+                        toast('Image uploaded!', 'success');
+                    }, 300);
+                } else {
+                    throw new Error(data.error ? data.error.message : 'Upload failed');
+                }
+            })
+            .catch(function(err) {
+                clearInterval(progTimer);
+                isUploading = false;
+                document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('uploadEmpty').style.display = '';
+                console.error('ImgBB error:', err);
+                toast('Upload failed: ' + err.message, 'error');
+            });
+        };
+        reader.onerror = function() {
+            isUploading = false;
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('uploadEmpty').style.display = '';
+            toast('Failed to read file', 'error');
+        };
+        reader.readAsDataURL(file);
     }
 
     function removeImage() {
@@ -441,7 +434,7 @@
 
     // ===== AUTH =====
     function handleLogin() {
-        if (!window._firebaseOK) { showLoginError('Firebase not connected. Check firebase-config.js'); return; }
+        if (!window._firebaseOK) { showLoginError('Firebase not connected'); return; }
         var email = document.getElementById('loginEmail').value.trim();
         var pass = document.getElementById('loginPassword').value;
         var errEl = document.getElementById('loginError');
@@ -554,28 +547,24 @@
         document.getElementById('projGithub').value=data?(data.githubUrl||''):'';
         var v=document.getElementById('projVisible');(data&&data.visible===false)?v.classList.remove('on'):v.classList.add('on');
         var f=document.getElementById('projFeatured');(data&&data.featured)?f.classList.add('on'):f.classList.remove('on');
-
-        // Handle image — show existing or empty
-        uploadedImageUrl = '';
-        document.getElementById('fileInput').value = '';
-        var zone = document.getElementById('uploadZone');
-
-        if (data && data.image) {
-            uploadedImageUrl = data.image;
-            document.getElementById('projImage').value = data.image;
-            document.getElementById('previewImg').src = data.image;
-            document.getElementById('uploadEmpty').style.display = 'none';
-            document.getElementById('uploadPreview').style.display = '';
-            document.getElementById('uploadProgress').style.display = 'none';
+        uploadedImageUrl='';
+        document.getElementById('fileInput').value='';
+        var zone=document.getElementById('uploadZone');
+        if(data&&data.image){
+            uploadedImageUrl=data.image;
+            document.getElementById('projImage').value=data.image;
+            document.getElementById('previewImg').src=data.image;
+            document.getElementById('uploadEmpty').style.display='none';
+            document.getElementById('uploadPreview').style.display='';
+            document.getElementById('uploadProgress').style.display='none';
             zone.classList.add('has-image');
-        } else {
-            document.getElementById('projImage').value = '';
-            document.getElementById('uploadEmpty').style.display = '';
-            document.getElementById('uploadPreview').style.display = 'none';
-            document.getElementById('uploadProgress').style.display = 'none';
+        }else{
+            document.getElementById('projImage').value='';
+            document.getElementById('uploadEmpty').style.display='';
+            document.getElementById('uploadPreview').style.display='none';
+            document.getElementById('uploadProgress').style.display='none';
             zone.classList.remove('has-image');
         }
-
         document.getElementById('projectModal').style.display='';
     }
     function closeProjectModal(){document.getElementById('projectModal').style.display='none';}
@@ -583,11 +572,9 @@
 
     function saveProject(form) {
         if(!window._firebaseOK){toast('Firebase not connected','error');return;}
-        if(isUploading){toast('Please wait for upload to finish','info');return;}
-
-        var imageUrl = document.getElementById('projImage').value;
-        if (!imageUrl) { toast('Please upload a project image','error'); return; }
-
+        if(isUploading){toast('Wait for upload to finish','info');return;}
+        var imageUrl=document.getElementById('projImage').value;
+        if(!imageUrl){toast('Please upload a project image','error');return;}
         var id=document.getElementById('projId').value;
         var data={
             title:document.getElementById('projTitle').value.trim(),
@@ -602,10 +589,9 @@
             featured:document.getElementById('projFeatured').classList.contains('on'),
             updatedAt:firebase.firestore.FieldValue.serverTimestamp()
         };
-        var btn = document.getElementById('saveBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Saving...';
-
+        var btn=document.getElementById('saveBtn');
+        btn.disabled=true;
+        btn.innerHTML='<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Saving...';
         var save=id?db.collection('projects').doc(id).update(data):db.collection('projects').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
         save.then(function(){toast(id?'Updated!':'Added!','success');closeProjectModal();form.reset();uploadedImageUrl='';}).catch(function(err){toast('Error: '+err.message,'error');}).finally(function(){btn.disabled=false;btn.innerHTML='<iconify-icon icon="lucide:save" width="15"></iconify-icon> Save Project';});
     }
