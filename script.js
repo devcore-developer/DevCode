@@ -126,6 +126,14 @@ function showToast(message) {
     setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 350); }, 3000);
 }
 
+// ===== HTML Escape =====
+function escHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 
 // ╔═══════════════════════════════════════════════════════╗
 // ║           FIREBASE — CONTACT FORM                    ║
@@ -193,7 +201,6 @@ if (projectsGrid && typeof db !== 'undefined') {
             firebaseProjects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderFirebaseProjects();
         }, (err) => {
-            // If Firestore rules block reads, show fallback
             projectsGrid.innerHTML = '<p class="text-gray-600 text-sm font-mono text-center py-20 col-span-2">Unable to load projects.</p>';
         });
 }
@@ -204,7 +211,6 @@ function renderFirebaseProjects() {
     const activeFilter = document.querySelector('.filter-btn.active');
     const filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
     const searchTerm = projectSearch ? projectSearch.value.toLowerCase().trim() : '';
-    let visibleCount = 0;
 
     let filtered = firebaseProjects;
     if (filter !== 'all') filtered = filtered.filter(p => p.category === filter);
@@ -223,16 +229,16 @@ function renderFirebaseProjects() {
             ? 'bg-purple-500/15 text-purple-400 border-purple-500/20'
             : 'bg-[#4F8CFF]/15 text-[#4F8CFF] border-[#4F8CFF]/20';
         const badgeText = isMobile ? 'Mobile' : 'Web App';
-        const tags = (p.tags || []).map(t => `<span class="text-[10px] font-mono bg-white/5 rounded px-2 py-0.5 text-gray-500">${t}</span>`).join('');
-        const liveLink = p.liveUrl ? `<a href="${p.liveUrl}" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-[#4F8CFF]/70 hover:text-[#4F8CFF] transition-colors">Live <iconify-icon icon="lucide:external-link" width="12"></iconify-icon></a>` : '';
-        const githubLink = p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-white transition-colors">Code <iconify-icon icon="lucide:github" width="12"></iconify-icon></a>` : '';
+        const tags = (p.tags || []).map(t => `<span class="text-[10px] font-mono bg-white/5 rounded px-2 py-0.5 text-gray-500">${escHTML(t)}</span>`).join('');
+        const liveLink = p.liveUrl ? `<a href="${escHTML(p.liveUrl)}" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-[#4F8CFF]/70 hover:text-[#4F8CFF] transition-colors">Live <iconify-icon icon="lucide:external-link" width="12"></iconify-icon></a>` : '';
+        const githubLink = p.githubUrl ? `<a href="${escHTML(p.githubUrl)}" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-white transition-colors">Code <iconify-icon icon="lucide:github" width="12"></iconify-icon></a>` : '';
 
         return `
         <div class="project-card group rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-500"
-             data-category="${p.category}" data-name="${p.title}" data-live="${p.liveUrl || ''}"
+             data-category="${p.category}" data-name="${escHTML(p.title)}" data-live="${escHTML(p.liveUrl || '')}"
              style="opacity:0;transform:translateY(15px);transition:opacity 0.4s ease ${i * 0.06}s, transform 0.4s ease ${i * 0.06}s">
             <div class="aspect-[16/9] overflow-hidden relative">
-                <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://picsum.photos/seed/${p.id}/1200/675.jpg'">
+                <img src="${escHTML(p.image)}" alt="${escHTML(p.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://picsum.photos/seed/${p.id}/1200/675.jpg'">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-80"></div>
                 <div class="absolute top-3 left-3">
                     <span class="text-[10px] font-mono font-bold uppercase tracking-wider ${badgeColor} border rounded-md px-2.5 py-1">${badgeText}</span>
@@ -240,15 +246,14 @@ function renderFirebaseProjects() {
                 ${p.featured ? '<div class="absolute top-3 right-3"><span class="text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/20 rounded-md px-2 py-0.5">★ Featured</span></div>' : ''}
             </div>
             <div class="p-5">
-                <h3 class="font-display font-semibold text-base mb-1.5 group-hover:text-[#4F8CFF] transition-colors duration-300">${p.title}</h3>
-                <p class="text-xs text-gray-600 leading-relaxed mb-4">${p.description}</p>
+                <h3 class="font-display font-semibold text-base mb-1.5 group-hover:text-[#4F8CFF] transition-colors duration-300">${escHTML(p.title)}</h3>
+                <p class="text-xs text-gray-600 leading-relaxed mb-4">${escHTML(p.description)}</p>
                 <div class="flex items-center gap-1.5 flex-wrap mb-4">${tags}</div>
                 <div class="flex items-center gap-4">${liveLink}${githubLink}</div>
             </div>
         </div>`;
     }).join('');
 
-    // Trigger animations
     requestAnimationFrame(() => {
         projectsGrid.querySelectorAll('.project-card').forEach(card => {
             card.style.opacity = '1';
@@ -275,3 +280,81 @@ document.addEventListener('click', (e) => {
         if (url) window.open(url, '_blank');
     }
 });
+
+
+// ╔═══════════════════════════════════════════════════════╗
+// ║       FIREBASE — TESTIMONIALS LOADER                  ║
+// ╚═══════════════════════════════════════════════════════╝
+const testimonialsGrid = document.getElementById('testimonialsGrid');
+const noTestimonials = document.getElementById('noTestimonials');
+let firebaseTestimonials = [];
+
+if (testimonialsGrid && typeof db !== 'undefined') {
+    db.collection('testimonials')
+        .where('visible', '==', true)
+        .orderBy('order', 'asc')
+        .onSnapshot((snap) => {
+            firebaseTestimonials = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderTestimonials();
+        }, (err) => {
+            testimonialsGrid.innerHTML = '<p class="text-gray-600 text-sm font-mono text-center py-20 col-span-3">Unable to load testimonials.</p>';
+        });
+}
+
+function renderTestimonials() {
+    if (!testimonialsGrid) return;
+
+    if (firebaseTestimonials.length === 0) {
+        testimonialsGrid.innerHTML = '';
+        if (noTestimonials) noTestimonials.classList.remove('hidden');
+        return;
+    }
+    if (noTestimonials) noTestimonials.classList.add('hidden');
+
+    testimonialsGrid.innerHTML = firebaseTestimonials.map((t, i) => {
+        // Stars
+        const rating = t.rating || 5;
+        let starsHTML = '';
+        for (let s = 1; s <= 5; s++) {
+            starsHTML += s <= rating
+                ? '<iconify-icon icon="lucide:star" width="14" class="star-filled"></iconify-icon>'
+                : '<iconify-icon icon="lucide:star" width="14" class="star-empty"></iconify-icon>';
+        }
+
+        // Avatar
+        let avatarHTML = '';
+        if (t.avatar) {
+            avatarHTML = `<img src="${escHTML(t.avatar)}" alt="${escHTML(t.name)}" onerror="this.parentElement.innerHTML='${escHTML((t.name || '?').charAt(0).toUpperCase())}'">`;
+        } else {
+            avatarHTML = escHTML((t.name || '?').charAt(0).toUpperCase());
+        }
+
+        return `
+        <div class="testimonial-card"
+             style="opacity:0;transform:translateY(20px);transition:opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s, border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease">
+            <iconify-icon icon="lucide:quote" width="32" class="testimonial-quote-icon"></iconify-icon>
+            <div class="testimonial-stars">${starsHTML}</div>
+            <p class="testimonial-text">${escHTML(t.text)}</p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">${avatarHTML}</div>
+                <div>
+                    <div class="testimonial-name">${escHTML(t.name)}</div>
+                    ${t.role ? `<div class="testimonial-role">${escHTML(t.role)}</div>` : ''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Trigger staggered animations
+    requestAnimationFrame(() => {
+        testimonialsGrid.querySelectorAll('.testimonial-card').forEach(card => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Re-observe for reveal animations on section elements
+    testimonialsGrid.querySelectorAll('.testimonial-card').forEach(card => {
+        revealObserver.observe(card);
+    });
+}
